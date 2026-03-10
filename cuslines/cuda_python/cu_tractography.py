@@ -302,30 +302,31 @@ class GPUTracker:
                 tractogram.to_world()
                 sls = tractogram.streamlines
 
-                new_offsets_idx = offsets_idx + len(sls._offsets)
-                new_sls_data_idx = sls_data_idx + len(sls._data)
+                if len(sls) > 0:
+                    new_offsets_idx = offsets_idx + len(sls._offsets)
+                    new_sls_data_idx = sls_data_idx + len(sls._data)
 
-                if (
-                    new_offsets_idx > trx_file.header["NB_STREAMLINES"]
-                    or new_sls_data_idx > trx_file.header["NB_VERTICES"]
-                ):
-                    logger.info("TRX resizing...")
-                    trx_file.resize(
-                        nb_streamlines=new_offsets_idx * 2,
-                        nb_vertices=new_sls_data_idx * 2,
+                    if (
+                        new_offsets_idx > trx_file.header["NB_STREAMLINES"]
+                        or new_sls_data_idx > trx_file.header["NB_VERTICES"]
+                    ):
+                        logger.info("TRX resizing...")
+                        trx_file.resize(
+                            nb_streamlines=new_offsets_idx * 2,
+                            nb_vertices=new_sls_data_idx * 2,
+                        )
+
+                    # TRX uses memmaps here
+                    trx_file.streamlines._data[sls_data_idx:new_sls_data_idx] = sls._data
+                    trx_file.streamlines._offsets[offsets_idx:new_offsets_idx] = (
+                        sls_data_idx + sls._offsets
+                    )
+                    trx_file.streamlines._lengths[offsets_idx:new_offsets_idx] = (
+                        sls._lengths
                     )
 
-                # TRX uses memmaps here
-                trx_file.streamlines._data[sls_data_idx:new_sls_data_idx] = sls._data
-                trx_file.streamlines._offsets[offsets_idx:new_offsets_idx] = (
-                    sls_data_idx + sls._offsets
-                )
-                trx_file.streamlines._lengths[offsets_idx:new_offsets_idx] = (
-                    sls._lengths
-                )
-
-                offsets_idx = new_offsets_idx
-                sls_data_idx = new_sls_data_idx
+                    offsets_idx = new_offsets_idx
+                    sls_data_idx = new_sls_data_idx
                 pbar.update(
                     seeds[idx * global_chunk_sz : (idx + 1) * global_chunk_sz].shape[0]
                 )

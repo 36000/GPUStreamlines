@@ -166,6 +166,7 @@ parser.add_argument(
     "--cache-dir", type=str, default="", help="cache directory for FA and ODFs"
 )
 parser.add_argument("--seed-seed", type=int, default=None, help="seed for seeding")
+parser.add_argument("--min-pts", type=int, default=0, help="minimum length of streamlines in number of steps")
 
 args = parser.parse_args()
 
@@ -417,7 +418,8 @@ if args.device == "cpu":
 
     ts = time.time()
     streamline_generator = LocalTracking(
-        dg, tissue_classifier, seed_mask, affine=np.eye(4), step_size=args.step_size
+        dg, tissue_classifier, seed_mask, affine=np.eye(4), step_size=args.step_size,
+        minlen=args.min_pts * args.step_size
     )
     sft = StatefulTractogram(streamline_generator, img, Space.VOX)
     n_sls = len(sft.streamlines)
@@ -438,6 +440,7 @@ else:
         ngpus=args.ngpus,
         rng_seed=0,
         chunk_size=args.chunk_size,
+        min_pts=args.min_pts,
     ) as gpu_tracker:
         ts = time.time()
         if args.output_prefix and write_method == "trx":

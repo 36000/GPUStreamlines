@@ -70,7 +70,7 @@ class SeedBatchPropagator:
         t = self.cpu_tracker
         nseed = len(seeds)
 
-        shDir0      = np.zeros((nseed * t.dimt, 3), dtype=REAL_DTYPE)
+        shDir0      = np.zeros((nseed, t.dimt, 3), dtype=REAL_DTYPE)
         slineOutOff = np.zeros(nseed + 1, dtype=np.int32)
 
         self.getNumStreamlinesProb(

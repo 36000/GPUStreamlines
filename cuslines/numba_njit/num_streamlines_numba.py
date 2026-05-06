@@ -146,25 +146,16 @@ def getNumStreamlinesProb_generator(DIMX, DIMY, DIMZ, DIMT, RELATIVE_PEAK_THRESH
         for slid in prange(nseed): 
             # --- scratch buffers (thread-local on CPU) ---------------------
             pmf_scratch = np.empty(DIMT, dtype=np.float32)
-            dirs_out    = np.empty((DIMT, 3), dtype=np.float32)
     
             # --- get peak directions at this seed --------------------------
             # shDir0 slice for this seed
-            dir_base = slid * DIMT
-            ndir = get_direction_prob_start(
+            slineOutOff[slid] = get_direction_prob_start(
                 pmf_volume,
                 seeds[slid],        # point = seed (fractional voxel coords)
                 sphere_vertices,
                 sphere_edges,
-                dirs_out,
+                shDir0[slid],
                 pmf_scratch,
             )
-    
-            # --- write outputs --------------------------------------------
-            slineOutOff[slid] = ndir
-            for d in range(ndir):
-                shDir0[dir_base + d, 0] = dirs_out[d, 0]
-                shDir0[dir_base + d, 1] = dirs_out[d, 1]
-                shDir0[dir_base + d, 2] = dirs_out[d, 2]
     
     return getNumStreamlinesProb

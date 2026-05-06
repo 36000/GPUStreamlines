@@ -214,8 +214,7 @@ def genStreamlinesMergeProb_generator(DIMX, DIMY, DIMZ, DIMT, SPHERE_SYMM, STEP_
 
             for i in range(ndir):
                 # first_step is the i-th peak direction for this seed
-                dir_idx    = slid * DIMT + i
-                first_step = shDir0[dir_idx]   # float32[3] view
+                first_step = shDir0[slid, i]   # float32[3] view
 
                 # Offset into the flat streamline output array
                 sline_start = slineOff * MAX_SLINE_LEN * 2   # in points
